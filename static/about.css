@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Doto:wght@700&display=swap');
+
+/* General Reset */
+body, ul, li, a {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none;
+    box-sizing: border-box;
+    font-family: Doto;
+    color: white;
+}
+
+.creators li {
+    list-style: disc;
+}
+
+@media (orientation: landscape) {
+    body {
+        background-image: url('waves1.jpg');
+    }
+
+    .navbar-logo img {
+        display: block;
+        width: 60;
+        height: 50;
+    }
+
+    .navbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        background-color: rgba(255, 255, 255, 1);
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .navbar-links {
+        display: flex;
+        gap: 2rem;
+    }
+    
+    .navbar-links .nav-link {
+        color: black;
+        font-size: 1.25rem;
+    }
+    
+    .creators {
+        margin: 5rem;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .creators p, a, li {
+        font-size: 1.25rem;
+    }
+    
+    .creators img {
+        width: 180px;
+        height: 240px;
+    }
+
+    [class="member 1"] {
+        grid-column: 1;
+    }
+    
+    [class="member 2"] {
+        grid-column: 2;
+    }
+    
+    [class="member 3"] {
+        grid-column: 3;
+    }
+    
+    [class="member 4"] {
+        grid-column: 4;
+    }
+}
+
+@media (orientation: portrait) {
+    body {
+        background-image: url('waves1.jpg');
+    }
+
+    .navbar-logo img {
+        display: block;
+        width: 150;
+        height: 125;
+    }
+
+    .navbar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 2rem;
+        background-color: rgba(255, 255, 255, 1);
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .navbar-logo img {
+        display: block;
+    }
+    
+    .navbar-links {
+        display: flex;
+        gap: 10rem;
+    }
+    
+    .navbar-links .nav-link {
+        color: black;
+        font-size: 2rem;
+    }
+    
+    #self {
+        font-weight: bold;
+    }
+
+    .creators {
+        margin: 2rem;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        justify-items: center;
+        gap: 5rem;
+    }
+
+    .creators p, a, li {
+        font-size: 1.25rem;
+    }
+
+    .creators img {
+        width: 300px;
+        height: 400px
+    }
+
+    [class="member 1"] {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    [class="member 2"] {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    
+    [class="member 3"] {
+        grid-column: 1;
+        grid-row: 2;
+    }
+    
+    [class="member 4"] {
+        grid-column: 2;
+        grid-row: 2;
+    }
+}

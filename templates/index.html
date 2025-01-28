@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction</title>
+</head>
+<body>
+    <h1>Stock Price Prediction</h1>
+
+    <form method="POST">
+        <label for="symbol">Stock Symbol:</label>
+        <input type="text" id="symbol" name="symbol" required>
+        <br><br>
+        <label for="future_date">Future Date:</label>
+        <input type="date" id="future_date" name="future_date" required>
+        <br><br>
+        <button type="submit">Predict</button>
+    </form>
+
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+
+    {% if future_prediction %}
+        <h2>Prediction for {{ future_date }}: {{ future_prediction }}</h2>
+    {% endif %}
+
+    {% if accuracy_score %}
+        <p>Prediction Accuracy: {{ accuracy_score }}%</p>
+    {% endif %}
+
+    {% if plot_url %}
+        <iframe src="{{ plot_url }}" width="100%" height="600"></iframe>
+    {% endif %}
+
+    {% if investment_decision %}
+        <h3>Investment Decision:</h3>
+        <p>{{ investment_decision }}</p>
+    {% endif %}
+</body>
+</html>

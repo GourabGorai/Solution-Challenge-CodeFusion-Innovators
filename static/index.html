@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>About Page</title>
+        <link rel="stylesheet" href="about.css">
+    </head>
+
+    <body>
+        <nav class="navbar">
+            <div class="navbar-logo">
+                <a href="#">
+                    <img src="Stock.png" alt="logo" height="60" width="50">
+                </a>
+            </div>
+            <ul class="navbar-links">
+                <li><a href="templates/index.html" class="nav-link"><i>Home</i></a></li>
+                <li><a href="static/index.html" class="nav-link"><i>Features</i></a></li>
+                <li><a href="#" class="nav-link" id="self"><i>About</i></a></li>
+            </ul>
+        </nav>
+
+        <container class="about-section">
+            <h1>About the Project</h1>
+            <h2>Project Description</h2>
+            <p>This Flask-based Python application is designed to predict future stock prices using historical data and technical indicators. By integrating multiple functionalities such as user authentication, email verification, database management, and machine learning, it provides a comprehensive tool for stock analysis and prediction.</p>
+
+            <h2>How is it Useful?</h2>
+            <ul>
+                <li><strong>Stock Market Insights:</strong> Investors and traders can use this application to gain insights into potential future stock prices, helping them make informed investment decisions.</li>
+                <li><strong>Technical Analysis:</strong> By incorporating various technical indicators, the application provides a detailed analysis of stock performance, which is crucial for technical traders.</li>
+            </ul>
+
+            <h2>Features of the Application</h2>
+            <ul>
+                <li><strong>User Authentication and Verification:</strong> Ensures secure access through email-based verification and login.</li>
+                <li><strong>Stock Data Retrieval:</strong> Fetches historical stock data from Alpha Vantage API, providing a solid foundation for analysis.</li>
+                <li><strong>Technical Indicators:</strong> Calculates various technical indicators like Moving Averages (MA), Relative Strength Index (RSI), and Moving Average Convergence Divergence (MACD).</li>
+                <li><strong>Machine Learning Model:</strong> Utilizes a RandomForestRegressor to predict future stock prices based on historical data and technical indicators.</li>
+                <li><strong>Database Logging:</strong> Logs predictions and user data into a PostgreSQL database, ensuring persistent storage and retrieval.</li>
+                <li><strong>Visualization:</strong> Generates interactive plots of predicted and actual stock prices using Plotly, enhancing data interpretation.</li>
+                <li><strong>Holiday Check:</strong> Ensures predictions are not made for holidays, adding a layer of practicality to the model.</li>
+            </ul>
+
+            <h2>Detailed Code Description</h2>
+            <p>The application consists of multiple modules and functionalities, each designed for specific purposes:</p>
+            <ul>
+                <li><strong>Imports and Configuration:</strong> Sets up the Flask application, API keys, and essential configurations.</li>
+                <li><strong>Helper Functions:</strong> Includes functions for database connection, email verification, technical indicator calculation, and data retrieval.</li>
+                <li><strong>Routes:</strong> Handles user login, email verification, and stock price prediction processes.</li>
+            </ul>
+
+            <h2>Usefulness of the Outputs</h2>
+            <ul>
+                <li><strong>Predicted Prices:</strong> Provides future stock price predictions, helping users anticipate market movements.</li>
+                <li><strong>Actual vs Predicted Prices Plot:</strong> Visual comparison between actual and predicted prices to gauge model accuracy.</li>
+                <li><strong>Accuracy Score:</strong> R2 score indicating the model's predictive accuracy, helping users assess reliability.</li>
+            </ul>
+
+            <h2>Important Points for Users</h2>
+            <ul>
+                <li><strong>Data Quality:</strong> Predictions depend heavily on the quality of historical data.</li>
+                <li><strong>Technical Indicators:</strong> Understanding the indicators (MA, RSI, MACD) enhances interpretation.</li>
+                <li><strong>Holiday Adjustments:</strong> Predictions account for holidays, ensuring practical outputs.</li>
+                <li><strong>Security:</strong> Implements secure methods for user authentication and data protection.</li>
+            </ul>
+        </container>
+    </body>
+</html>

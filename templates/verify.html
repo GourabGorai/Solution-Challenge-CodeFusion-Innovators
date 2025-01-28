@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify Code</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <style>
+        .container{
+            width: 500px;
+        }
+        .nav{
+            height:100px;
+            background-color: rgb(167, 4, 167);
+        }
+        .input{
+            outline: 0.5px solid black;
+
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div  class="nav">
+
+        </div>
+    </nav>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Verify Your Email</h1>
+            <div class="message">
+            <p>You are almost done there!!  </p>
+            <p>We have send you verification code on your registered email:</p>
+            </div>
+            <form action="/verify" method="POST">
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="password" value="{{ password }}">
+                <input type="hidden" name="verification_code" value="{{ verification_code }}">
+                <div class="field">
+                    <label class="label">Verification Code</label>
+                    <div class="control">
+                        <input class="input" type="text" name="user_input_code" placeholder="Enter the code" required>
+                    </div>
+                </div>
+                <div class="control">
+                    <button class="button is-link" type="submit">Verify</button>
+                </div>
+            </form>
+        </div>
+    </section>
+</body>
+</html>
