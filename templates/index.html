@@ -19,11 +19,11 @@
     </form>
 
     {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
+        <p class="error">{{ error_message }}</p>
     {% endif %}
 
     {% if future_prediction %}
-        <h2>Prediction for {{ future_date }}: {{ future_prediction }}</h2>
+        <h2>Prediction for {{ future_dates[-1] }}: ${{ future_prediction }}</h2>
     {% endif %}
 
     {% if accuracy_score %}
@@ -37,6 +37,18 @@
     {% if investment_decision %}
         <h3>Investment Decision:</h3>
         <p>{{ investment_decision }}</p>
+    {% endif %}
+
+    <!-- Display Translated News Below Investment Suggestion -->
+    {% if stock_news %}
+        <div class="news-section">
+            <h3>Translated Stock News:</h3>
+            <ul>
+                {% for news in stock_news %}
+                    <li>{{ news }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     {% endif %}
 </body>
 </html>
