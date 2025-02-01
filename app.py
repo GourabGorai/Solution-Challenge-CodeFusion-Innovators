@@ -15,6 +15,7 @@ import plotly.express as px
 import plotly.io as pio
 import numpy as np
 from test import make_investment_decision
+from test import fetch_stock_news
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -411,9 +412,16 @@ def index():
                 GOOGLE_NEWS_API_KEY
             )
 
+            # Fetch stock news
+            stock_news = fetch_stock_news(symbol, GOOGLE_NEWS_API_KEY)
+            if not stock_news:
+                return "Unable to fetch stock news. Decision cannot be made."
+            print("\nStock News Headlines:")
+            for i, news in enumerate(stock_news, 1):
+                print(f"{i}. {news}")
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                                    future_dates=future_dates, plot_url=plot_filename, future_prediction=future_prediction,
-                                   accuracy_score=accuracy_score, investment_decision=investment_decision)
+                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news)
 
         else:
             error_message = "Failed to fetch stock data.Try Again Later."
