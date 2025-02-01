@@ -6,49 +6,68 @@
     <title>Stock Prediction</title>
 </head>
 <body>
-    <h1>Stock Price Prediction</h1>
+<h1>Stock Data</h1>
+<table>
+    <thead>
+    <tr>
+        <th>Company Name (Symbol)</th>
+        <th>Yesterday's Stock Value</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for stock in stock_data %}
+    <tr>
+        <td>{{ stock.company }}</td>
+        <td>{{ stock.yesterday_stock_value }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
+<div class="form-container">
+    <h2>Stock Prediction</h2>
     <form method="POST">
         <label for="symbol">Stock Symbol:</label>
-        <input type="text" id="symbol" name="symbol" required>
-        <br><br>
+        <input type="text" id="symbol" name="symbol" placeholder="Enter stock symbol (e.g., AAPL)" required>
+
         <label for="future_date">Future Date:</label>
         <input type="date" id="future_date" name="future_date" required>
-        <br><br>
-        <button type="submit">Predict</button>
+
+        <input type="submit" value="Predict">
     </form>
+</div>
 
-    {% if error_message %}
-        <p class="error">{{ error_message }}</p>
-    {% endif %}
+{% if error_message %}
+<div class="error-message">{{ error_message }}</div>
+{% endif %}
 
-    {% if future_prediction %}
-        <h2>Prediction for {{ future_dates[-1] }}: ${{ future_prediction }}</h2>
-    {% endif %}
+{% if predicted_prices and actual_prices %}
+<div class="plot-container">
+    <h2>Stock Prices: Predicted vs Actual</h2>
+    <iframe src="{{ plot_url }}" width="100%" height="500px"></iframe>
+</div>
 
-    {% if accuracy_score %}
-        <p>Prediction Accuracy: {{ accuracy_score }}%</p>
-    {% endif %}
+<div>
+    <h2>Prediction Details</h2>
+    <p><strong>Future Prediction:</strong> {{ future_prediction }}</p>
+    <p><strong>Accuracy Score:</strong> {{ accuracy_score }}%</p>
+</div>
 
-    {% if plot_url %}
-        <iframe src="{{ plot_url }}" width="100%" height="600"></iframe>
-    {% endif %}
+<div class="investment-decision">
+    <h2>Investment Decision</h2>
+    <p>{{ investment_decision }}</p>
+</div>
+{% endif %}
 
-    {% if investment_decision %}
-        <h3>Investment Decision:</h3>
-        <p>{{ investment_decision }}</p>
-    {% endif %}
-
-    <!-- Display Translated News Below Investment Suggestion -->
-    {% if stock_news %}
-        <div class="news-section">
-            <h3>Translated Stock News:</h3>
-            <ul>
-                {% for news in stock_news %}
-                    <li>{{ news }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+{% if stock_news %}
+<div class="news-container">
+    <h2>Stock News</h2>
+    <ul>
+        {% for news in stock_news %}
+        <li>{{ news }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
 </body>
 </html>
