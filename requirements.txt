@@ -6,3 +6,7 @@ psycopg2
 plotly
 gunicorn
 google-generativeai
+numpy
+matplotlib
+newsapi
+googletrans
