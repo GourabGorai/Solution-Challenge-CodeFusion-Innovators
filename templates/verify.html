@@ -4,14 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('../static/bg-log-image.webp'); /* Replace with your greyish image URL */
+            background-size: cover; /* Cover the entire viewport */
+            background-position: center; /* Center the image */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #333; /* Dark text for better readability */
+            position: relative; /* Position relative for overlay */
+        }
+        .overlay {
+            position: absolute; /* Position overlay */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better text visibility */
+        }
+        .verify-container {
+            position: relative; /* Position relative to overlay */
+            background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            backdrop-filter: blur(15px); /* Blur effect inside the box */
+        }
+        h2 {
+            margin-bottom: 1.5rem;
+            color: #333; /* Darker color for the heading */
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333; /* Dark color for labels */
+            text-align: left;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            margin-bottom: 1.5rem;
+            border: 2px solid #ccc; /* Light grey border */
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus {
+            border-color: #888; /* Darker grey on focus */
+            outline: none;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4285f4;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #357ae8;
+        }
+    </style>
 </head>
 <body>
+<div class="overlay"></div>
 <div class="verify-container">
     <h2>Verify Your Email</h2>
     <form method="POST">
         <label for="user_input_code">Verification Code:</label>
-        <input type="text" id="user_input_code" name="user_input_code" placeholder="Enter the verification code"
-               required>
+        <input type="text" id="user_input_code" name="user_input_code" placeholder="Enter the verification code" required>
 
         <input type="submit" value="Verify">
     </form>
