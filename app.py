@@ -26,20 +26,7 @@ STOCK_BASE_URL = 'https://www.alphavantage.co/query'
 HOLIDAY_API_KEY = '49339829-1b08-49a6-b341-72f937bb885f'
 HOLIDAY_API_URL = 'https://holidayapi.com/v1/holidays'
 
-def get_stock_data_for_companies():
-    companies = ['AAPL', 'GOOGL', 'NVDA', 'TSLA']
-    stock_data = []
 
-    for company in companies:
-        df = fetch_stock_data(company)
-        if df is not None:
-            latest_data = df.iloc[-1]  # Get the latest data point
-            stock_data.append({
-                'company': f"{company} ({company})",
-                'yesterday_stock_value': latest_data['Close']
-            })
-
-    return stock_data
 
 
 def is_holiday(date, country='US'):
@@ -347,8 +334,7 @@ def index():
     future_dates = []
     future_prediction = None
     accuracy_score = None
-    # Fetch stock data for the specified companies
-    stock_data = get_stock_data_for_companies()
+    
 
     if request.method == 'POST':
         symbol = request.form['symbol'].upper()
@@ -439,7 +425,7 @@ def index():
                 print(f"{i}. {news}")
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                                    future_dates=future_dates, plot_url=plot_filename, future_prediction=future_prediction,
-                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news, stock_data=stock_data)
+                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news)
 
         else:
             error_message = "Failed to fetch stock data.Try Again Later."
