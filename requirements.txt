@@ -10,3 +10,5 @@ numpy
 matplotlib
 newsapi
 googletrans
+psycopg2-binary
+libpq-dev
