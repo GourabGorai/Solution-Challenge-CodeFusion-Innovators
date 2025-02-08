@@ -16,6 +16,7 @@ import plotly.io as pio
 import numpy as np
 from test import make_investment_decision
 from test import fetch_stock_news
+import re
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -27,7 +28,26 @@ HOLIDAY_API_KEY = '49339829-1b08-49a6-b341-72f937bb885f'
 HOLIDAY_API_URL = 'https://holidayapi.com/v1/holidays'
 
 
-
+def format_investment_decision(text):
+    # Convert **text** to <h2>text</h2>
+    text = re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', text)
+    
+    # Convert * **text** to bullet points with bold text
+    text = re.sub(r'\*\s\*\*([^*]+)\*\*', r'<li><b>\1</b></li>', text)
+    
+    # Convert sections with colons (e.g., "Positive:") into <h2> headers
+    text = re.sub(r'(^|\n)([A-Za-z ]+):', r'\1<h2>\2</h2>', text)
+    
+    # Convert hyphen-based bullet points to proper HTML list format
+    text = re.sub(r'(?m)^- (.*)', r'<li>\1</li>', text)
+    
+    # Wrap bullet points in <ul> tags
+    text = re.sub(r'(<li>.*?</li>)+', lambda m: f"<ul>{m.group(0)}</ul>", text, flags=re.S)
+    
+    # Convert new lines to <br> for proper spacing in HTML
+    text = text.replace("\n", "<br>")
+    
+    return text
 
 def is_holiday(date, country='US'):
     params = {
@@ -416,6 +436,7 @@ def index():
                 GOOGLE_NEWS_API_KEY
             )
 
+            investment_decision = format_investment_decision(investment_decision)
             # Fetch stock news
             stock_news = fetch_stock_news(symbol, GOOGLE_NEWS_API_KEY)
             if not stock_news:
