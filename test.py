@@ -66,6 +66,20 @@ def get_financial_suggestion(predicted_price, current_price, stock_news):
     # No status code is returned, only the generated text
     return response.text  # Return the generated suggestion
 
+# Function to interact with the Gemini API as a chatbot
+def chat_with_gemini(user_question):
+    """Function to interact with the Gemini API and return chatbot response."""
+    try:
+        # Configure and create the generative model
+        genai.configure(api_key="AIzaSyDYTE6N19xUpjUanmKtbR4ymkmOXcxG8OA")
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        # Generate response from Gemini API
+        response = model.generate_content(user_question)
+        return response.text if response else "No response from Gemini."
+    except Exception as e:
+        return f"Error: {str(e)}"
+
 # Main function to fetch data and make a suggestion
 def make_investment_decision(predicted_price, stock_symbol, google_news_api_key):
     # Fetch current stock price
@@ -91,3 +105,5 @@ def make_investment_decision(predicted_price, stock_symbol, google_news_api_key)
     # Disclaimer: This is for informational purposes only, not financial advice.
     print("Disclaimer: This is a suggestion based on the provided information and should not be considered financial advice. Please consult with a financial professional before making any investment decisions.")
     return data1
+
+kjh = 1
