@@ -179,5 +179,16 @@
     </ul>
 </div>
 {% endif %}
+<!-- Separate form for chat query -->
+<form method="GET">
+    <input type="text" name="user_query" placeholder="Ask a question">
+    <button type="submit">Ask</button>
+</form>
+{% if chatbot_response %}
+    <div>
+        <h2>AI Response</h2>
+        <p>{{ chatbot_response }}</p>
+    </div>
+{% endif %}
 </body>
 </html>
