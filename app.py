@@ -16,6 +16,7 @@ import plotly.io as pio
 import numpy as np
 from test import make_investment_decision
 from test import fetch_stock_news
+from test import chat_with_gemini
 import re
 
 app = Flask(__name__)
@@ -354,6 +355,7 @@ def index():
     future_dates = []
     future_prediction = None
     accuracy_score = None
+    chatbot_response=None
     
 
     if request.method == 'POST':
@@ -437,6 +439,7 @@ def index():
             )
 
             investment_decision = format_investment_decision(investment_decision)
+            session['investment_decision']=investment_decision
             # Fetch stock news
             stock_news = fetch_stock_news(symbol, GOOGLE_NEWS_API_KEY)
             if not stock_news:
@@ -444,15 +447,30 @@ def index():
             print("\nStock News Headlines:")
             for i, news in enumerate(stock_news, 1):
                 print(f"{i}. {news}")
+            
+            
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
+
                                    future_dates=future_dates, plot_url=plot_filename, future_prediction=future_prediction,
-                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news)
+                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news,chatbot_response=chatbot_response, show_chatbot=True)
 
         else:
             error_message = "Failed to fetch stock data.Try Again Later."
+        
+    elif request.method == 'GET':
+        # Initialize chatbot interaction
+        user_question = request.args.get('user_query')
+        if user_question:
+            query = f"As you have provided {session.get('investment_decision')}. Now my question is {user_question}. If the question is out of the context, only say 'out of context'."
+            chatbot_response = chat_with_gemini(query)
+            return render_template('index.html', chatbot_response=chatbot_response)
+        else:
+            return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
+                           error_message="No response from chatbot, please try again.", future_prediction=future_prediction, accuracy_score=accuracy_score)   
+        
 
     return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
-                           error_message=error_message, future_prediction=future_prediction, accuracy_score=accuracy_score)
+                           error_message=error_message, future_prediction=future_prediction, accuracy_score=accuracy_score)   
 
 if __name__ == '__main__':
     app.run(debug=True)
