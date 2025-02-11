@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Prediction</title>
+    <title>Stock Prediction & Investment</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
             background-image: url('../static/bg-image.jpg'); 
-            background-size: cover; /* Cover the entire viewport */
-            background-position: center; /* Center the image */
-            background-repeat: no-repeat; /* No repeat for the background image */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: #333;
             margin: 0;
             padding: 0;
@@ -21,13 +21,12 @@
             min-height: 100vh;
         }
         nav {
-            margin-top: 2rem; /* Add margin to position the nav bar */
+            margin-top: 2rem;
         }
         nav ul {
             list-style: none;
             display: flex;
             justify-content: center;
-            margin: 0;
             padding: 0;
         }
         nav ul li {
@@ -38,47 +37,24 @@
             text-decoration: none;
             font-size: 1.2rem;
             transition: color 0.3s ease;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Add text shadow for better readability */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow to nav links */
             padding: 0.5rem 1rem;
             border-radius: 4px;
         }
         nav ul li a:hover,
         nav ul li a.active {
             color: #ddd;
-            background-color: rgba(0, 0, 0, 0.3); /* Change background color on hover and active */
+            background-color: rgba(0, 0, 0, 0.3);
         }
         h1 {
-            color: #fff; /* White color for better contrast against the background image */
+            color: #fff;
             margin-bottom: 1rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); /* Add text shadow for better readability */
-        }
-        table {
-            width: 80%;
-            max-width: 800px;
-            margin-bottom: 2rem;
-            border-collapse: collapse;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add shadow to the table */
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white background */
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: rgba(240, 240, 240, 0.9); /* Semi-transparent light grey background */
-        }
-        tr:nth-child(even) {
-            background-color: rgba(250, 250, 250, 0.9); /* Semi-transparent very light grey background */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
         .form-container {
-            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white */
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Add shadow to the form container */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             width: 80%;
             max-width: 400px;
             text-align: center;
@@ -100,8 +76,6 @@
             margin-bottom: 1rem;
             border: 1px solid #ccc;
             border-radius: 4px;
-            box-sizing: border-box;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Add shadow to input fields */
         }
         input[type="submit"] {
             width: 100%;
@@ -113,7 +87,6 @@
             font-size: 1rem;
             cursor: pointer;
             transition: background-color 0.3s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Add shadow to submit button */
         }
         input[type="submit"]:hover {
             background-color: #357ae8;
@@ -122,18 +95,30 @@
             color: #d9534f;
             margin-top: 1rem;
         }
+        .investment-decision, .chat-response {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 1rem;
+            width: 80%;
+            max-width: 600px;
+        }
     </style>
 </head>
 <body>
 <nav>
     <ul>
-        <li><a href="../templates/index.html" class="active">Home</a></li>
+        <li><a href="{{ url_for('index') }}" class="active">Home</a></li>
         <li><a href="../static/members.html">About Members</a></li>
         <li><a href="../static/project.html">About Project</a></li>
     </ul>
 </nav>
-<h1>Stock Data</h1>
 
+<h1>Stock Prediction & Investment</h1>
+
+<!-- Stock Prediction Form -->
 <div class="form-container">
     <h2>Stock Prediction</h2>
     <form method="POST">
@@ -147,10 +132,12 @@
     </form>
 </div>
 
+<!-- Display Error Message -->
 {% if error_message %}
 <div class="error-message">{{ error_message }}</div>
 {% endif %}
 
+<!-- Display Prediction Results -->
 {% if predicted_prices and actual_prices %}
 <div class="plot-container">
     <h2>Stock Prices: Predicted vs Actual</h2>
@@ -162,13 +149,17 @@
     <p><strong>Future Prediction:</strong> {{ future_prediction }}</p>
     <p><strong>Accuracy Score:</strong> {{ accuracy_score }}%</p>
 </div>
+{% endif %}
 
+<!-- Investment Decision Section -->
+{% if investment_decision %}
 <div class="investment-decision">
     <h2>Investment Decision</h2>
     <p>{{ investment_decision | safe }}</p>
 </div>
 {% endif %}
 
+<!-- Stock News Section -->
 {% if stock_news %}
 <div class="news-container">
     <h2>Stock News</h2>
@@ -179,16 +170,24 @@
     </ul>
 </div>
 {% endif %}
-<!-- Separate form for chat query -->
-<form method="GET">
-    <input type="text" name="user_query" placeholder="Ask a question">
-    <button type="submit">Ask</button>
-</form>
+
+<!-- Chatbot Interaction -->
+<div class="form-container">
+    <h2>Ask the Chatbot</h2>
+    <form method="GET">
+        <label for="user_query">Ask a question:</label>
+        <input type="text" id="user_query" name="user_query" placeholder="Ask a question related to investment">
+        <button type="submit">Ask</button>
+    </form>
+</div>
+
+<!-- Display Chatbot Response -->
 {% if chatbot_response %}
-    <div>
+    <div class="chat-response">
         <h2>AI Response</h2>
-        <p>{{ chatbot_response }}</p>
+        <p>{{ chatbot_response | safe }}</p>
     </div>
 {% endif %}
+
 </body>
 </html>
