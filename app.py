@@ -460,10 +460,12 @@ def index():
     elif request.method == 'GET':
         # Initialize chatbot interaction
         user_question = request.args.get('user_query')
+        investment_decision2 = session.get('investment_decision', "Investment decision not available.")
+    
         if user_question:
             query = f"As you have provided {session.get('investment_decision')}. Now my question is {user_question}. If the question is out of the context, only say 'out of context'."
-            chatbot_response = chat_with_gemini(query)
-            return render_template('index.html', chatbot_response=chatbot_response)
+            chatbot_response = format_investment_decision(chat_with_gemini(query))
+            return render_template('index.html', chatbot_response=chatbot_response, investment_decision=investment_decision2)
         else:
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                            error_message="No response from chatbot, please try again.", future_prediction=future_prediction, accuracy_score=accuracy_score)   
