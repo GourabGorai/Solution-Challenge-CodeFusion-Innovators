@@ -336,6 +336,18 @@
       </div>
     </section>
 
+    <!-- Plot Section -->
+    <section class="card">
+      <h2>Stock Price Prediction Plot</h2>
+      <div id="plot-container">
+      {% if plot_url %}
+        <iframe src="{{ plot_url }}" width="100%" height="500px" frameborder="0"></iframe>
+      {% else %}
+        <p>No plot available. Please make a prediction to view the plot.</p>
+      {% endif %}
+      </div>
+    </section>
+
     <!-- Investment Decision & News -->
     <div class="two-column-grid">
       <section class="card">
@@ -424,14 +436,7 @@
     });
 
     // Simulate loading some news
-    function loadNews() {
-      const news = [
-        "Stock XYZ shows strong growth potential",
-        "Market analysts predict positive Q2 outcomes",
-        "New technological developments impact stock performance",
-        "Quarterly earnings exceed expectations",
-        "New partnership announcement boosts investor confidence"
-      ];
+    
 
       const newsList = document.getElementById('newsList');
       news.forEach(item => {
