@@ -5,3 +5,5 @@ scikit-learn
 psycopg2
 plotly
 gunicorn
+google-generativeai
+googletrans
