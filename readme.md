@@ -148,13 +148,3 @@ psycopg2==2.9.1
 requests==2.26.0
 numpy==1.21.0
 ```
-
----
-
-## Contributing 🤝
-
-Feel free to fork this repository and submit pull requests. For major changes, please open an issue first to discuss what you would like to change.
-
-## License 📄
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
