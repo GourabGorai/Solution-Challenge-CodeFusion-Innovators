@@ -22,7 +22,7 @@ import re
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 app.config['DEBUG'] = True
-GOOGLE_NEWS_API_KEY = '93888de4c8d749d3ac4fc66b360b3c38'  # Define as a constant
+GOOGLE_NEWS_API_KEY = '43a396d991214609bdd6e65e6988bedb'  # Define as a constant
 API_KEY = 'LZIWKUHDC0XBETMU'
 STOCK_BASE_URL = 'https://www.alphavantage.co/query'
 HOLIDAY_API_KEY = '49339829-1b08-49a6-b341-72f937bb885f'
@@ -276,7 +276,7 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']  # Get password from form
-
+        session['verified'] = False  # Set to False until verification is done
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -318,7 +318,7 @@ def verify():
         if user_input_code == session.get('verification_code'):
             email = session.get('email')
             password = session.get('password')
-
+            
             # Check if user exists in the database
             conn = get_db_connection()
             cur = conn.cursor()
@@ -338,6 +338,7 @@ def verify():
 
             # Store email in the session for the current visit
             session['email'] = email
+            session['verified'] = True  # Set to True after successful verification
 
             return redirect(url_for('index'))
         else:
@@ -346,8 +347,8 @@ def verify():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    if 'email' not in session:
-        return redirect(url_for('login'))
+    if not session.get('email') or not session.get('verified'):
+        return redirect(url_for('login'))  # Force login if not verified
 
     predicted_prices = []
     actual_prices = []
