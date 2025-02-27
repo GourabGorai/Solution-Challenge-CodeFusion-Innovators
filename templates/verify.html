@@ -5,87 +5,87 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verify</title>
     <style>
+        html {
+            height: 100%;
+        }
         body {
-            font-family: 'Arial', sans-serif;
-            background-image: url('../static/bg-log-image.webp'); /* Replace with your greyish image URL */
-            background-size: cover; /* Cover the entire viewport */
-            background-position: center; /* Center the image */
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background: linear-gradient(145deg, blue, black);
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            color: #333; /* Dark text for better readability */
-            position: relative; /* Position relative for overlay */
         }
-        .overlay {
-            position: absolute; /* Position overlay */
+        .verify-box {
+            width: 400px;
+            padding: 40px;
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            text-align: center;
+        }
+        .verify-box h2 {
+            color: #fff;
+        }
+        .verify-box .user-box {
+            position: relative;
+        }
+        .verify-box .user-box input {
+            width: 100%;
+            padding: 10px 0;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-bottom: 1px solid #fff;
+            outline: none;
+            background: transparent;
+            margin-bottom: 30px;
+        }
+        .verify-box .user-box label {
+            position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better text visibility */
+            padding: 10px 0;
+            font-size: 16px;
+            color: #fff;
+            transition: 0.5s;
         }
-        .verify-container {
-            position: relative; /* Position relative to overlay */
-            background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white */
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            backdrop-filter: blur(15px); /* Blur effect inside the box */
+        .verify-box .user-box input:focus ~ label,
+        .verify-box .user-box input:valid ~ label {
+            top: -20px;
+            left: 0;
+            color: #3f03f4;
+            font-size: 12px;
         }
-        h2 {
-            margin-bottom: 1.5rem;
-            color: #333; /* Darker color for the heading */
-        }
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333; /* Dark color for labels */
-            text-align: left;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 0.75rem;
-            margin-bottom: 1.5rem;
-            border: 2px solid #ccc; /* Light grey border */
-            border-radius: 8px;
-            box-sizing: border-box;
-            transition: border-color 0.3s ease;
-        }
-        input[type="text"]:focus {
-            border-color: #888; /* Darker grey on focus */
-            outline: none;
-        }
-        input[type="submit"] {
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #4285f4;
+        .verify-box input[type="submit"] {
+            background: #3209eb;
             border: none;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1rem;
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 16px;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: 0.5s;
+            border-radius: 5px;
+            box-shadow: 0 0 5px #3704b6, 0 0 25px #0611a0;
         }
-        input[type="submit"]:hover {
-            background-color: #357ae8;
+        .verify-box input[type="submit"]:hover {
+            box-shadow: 0 0 50px #4303ba, 0 0 100px #2a05cf;
         }
     </style>
 </head>
 <body>
-<div class="overlay"></div>
-<div class="verify-container">
-    <h2>Verify Your Email</h2>
-    <form method="POST">
-        <label for="user_input_code">Verification Code:</label>
-        <input type="text" id="user_input_code" name="user_input_code" placeholder="Enter the verification code" required>
-
-        <input type="submit" value="Verify">
-    </form>
-</div>
+    <div class="verify-box">
+        <h2>Verify Your Email</h2>
+        <form method="POST">
+            <div class="user-box">
+                <input type="text" id="user_input_code" name="user_input_code" required>
+                <label for="user_input_code">Verification Code</label>
+            </div>
+            <input type="submit" value="Verify">
+        </form>
+    </div>
 </body>
 </html>
