@@ -9,3 +9,4 @@ google-generativeai
 googletrans
 numpy
 psycopg2-binary
+Werkzeug
