@@ -29,6 +29,9 @@
         .login-box h2 {
             color: #fff;
         }
+        .login-box h3 {
+            color: #fff;
+        }
         .login-box .user-box {
             position: relative;
         }
@@ -74,11 +77,15 @@
         .login-box input[type="submit"]:hover {
             box-shadow: 0 0 50px red, 0 0 100px red;
         }
+        .h3{
+            color: white;
+        }
     </style>
 </head>
 <body>
     <div class="login-box">
         <h2>Login</h2>
+        <h3>ENTER YOUR EMAIL AND PASSWARD, A VERIFICATION CODE WILL BE SENT TO THAT EMAIL ID</h3>
         <form method="POST" action="/login">
             <div class="user-box">
                 <input type="email" id="email" name="email" required>
