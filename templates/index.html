@@ -151,11 +151,33 @@
     }
 
     /* News Grid */
+    .news-grid-container {
+      max-height: 400px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #E13622 #f3f4f6;
+      margin-bottom: 1rem;
+    }
+
+    .news-grid-container::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .news-grid-container::-webkit-scrollbar-track {
+      background: #f3f4f6;
+      border-radius: 10px;
+    }
+
+    .news-grid-container::-webkit-scrollbar-thumb {
+      background-color: #E13622;
+      border-radius: 10px;
+    }
+
     .news-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 0.5rem;
-      margin-bottom: 1rem;
+      padding-right: 8px; /* Space for scrollbar */
     }
 
     .news-item {
@@ -163,6 +185,11 @@
       background-color: #f3f4f6;
       border-radius: 0.5rem;
       transition: background-color 0.2s;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
     }
 
     .news-item:hover {
@@ -172,9 +199,9 @@
     /* Stock News List */
     .news-list {
       margin-top: 1rem;
-      list-style: none;
       border-top: 1px solid #e5e7eb;
       padding-top: 1rem;
+      list-style: none;
     }
 
     .news-list li {
@@ -261,6 +288,16 @@
       .two-column-grid {
         grid-template-columns: 1fr;
       }
+      
+      .news-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .news-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     h2 {
@@ -312,6 +349,9 @@
     two-column-grid .card p {
     color: white;
     }
+    .news-item {
+      color: #1f2937;
+    }
   </style>
 </head>
 <body>
@@ -348,7 +388,7 @@
       <form class="prediction-form" method="POST" action="/">
         <div class="form-group">
           <label for="symbol">Symbol</label>
-          <input type="text" id="symbol" name="symbol" class="input" placeholder="Enter stock symbol" required>
+          <input type="text" id="symbol" name="symbol" class="input" placeholder="Enter stock symbol, ex :- AAPL, GOOGL, etc." required>
         </div>
         <div class="form-group">
           <label for="date">Date</label>
@@ -403,14 +443,16 @@
 
       <section class="card">
         <h2>Relevant News</h2>
-        <div class="news-grid">
-          {% if stock_news %}
-            {% for news in stock_news %}
-              <div class="news-item">{{ news }}</div>
-            {% endfor %}
-          {% else %}
-            <div class="news-item">No news available.</div>
-          {% endif %}
+        <div class="news-grid-container">
+          <div class="news-grid">
+            {% if stock_news %}
+              {% for news in stock_news %}
+                <div class="news-item">{{ news }}</div>
+              {% endfor %}
+            {% else %}
+              <div class="news-item">No news available.</div>
+            {% endif %}
+          </div>
         </div>
         <ul id="newsList" class="news-list"></ul>
       </section>
@@ -481,25 +523,12 @@
       this.submit();
     });
 
-    // Simulate loading some news
-    
-
-      const newsList = document.getElementById('newsList');
-      news.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        newsList.appendChild(li);
-      });
-    }
-
-    // Add animation to cards on page load and load initial data
+    // Add animation to cards on page load
     document.addEventListener('DOMContentLoaded', function() {
       const cards = document.querySelectorAll('.card');
       cards.forEach((card, index) => {
         card.style.animationDelay = `${index * 0.1}s`;
       });
-
-      loadNews();
     });
   </script>
 </body>
