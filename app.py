@@ -18,36 +18,40 @@ from test import make_investment_decision
 from test import fetch_stock_news
 from test import chat_with_gemini
 import re
+import threading
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
 app.config['DEBUG'] = True
-GOOGLE_NEWS_API_KEY = '43a396d991214609bdd6e65e6988bedb'  # Define as a constant
+GOOGLE_NEWS_API_KEY = '43a396d991214609bdd6e65e6988bedb'
 API_KEY = 'LZIWKUHDC0XBETMU'
 STOCK_BASE_URL = 'https://www.alphavantage.co/query'
 HOLIDAY_API_KEY = '49339829-1b08-49a6-b341-72f937bb885f'
 HOLIDAY_API_URL = 'https://holidayapi.com/v1/holidays'
 
+# Threading helper functions
+def fetch_investment_decision(result_container, error_container, future_prediction, symbol, api_key):
+    try:
+        decision = make_investment_decision(future_prediction, symbol, api_key)
+        formatted_decision = format_investment_decision(decision)
+        result_container['decision'] = formatted_decision
+    except Exception as e:
+        error_container['decision_error'] = str(e)
+
+def fetch_stock_news_parallel(result_container, error_container, symbol, api_key):
+    try:
+        news = fetch_stock_news(symbol, api_key)
+        result_container['news'] = news
+    except Exception as e:
+        error_container['news_error'] = str(e)
 
 def format_investment_decision(text):
-    # Convert **text** to <h2>text</h2>
     text = re.sub(r'\*\*([^*]+)\*\*', r'<b>\1</b>', text)
-    
-    # Convert * **text** to bullet points with bold text
     text = re.sub(r'\*\s\*\*([^*]+)\*\*', r'<li><b>\1</b></li>', text)
-    
-    # Convert sections with colons (e.g., "Positive:") into <h2> headers
     text = re.sub(r'(^|\n)([A-Za-z ]+):', r'\1<h2>\2</h2>', text)
-    
-    # Convert hyphen-based bullet points to proper HTML list format
     text = re.sub(r'(?m)^- (.*)', r'<li>\1</li>', text)
-    
-    # Wrap bullet points in <ul> tags
     text = re.sub(r'(<li>.*?</li>)+', lambda m: f"<ul>{m.group(0)}</ul>", text, flags=re.S)
-    
-    # Convert new lines to <br> for proper spacing in HTML
     text = text.replace("\n", "<br>")
-    
     return text
 
 def is_holiday(date, country='US'):
@@ -67,8 +71,6 @@ def get_db_connection():
         "postgres://avnadmin:AVNS_HjYF1YDB0ilME5gCWBC@pg-2ff69ed5-gourabg30march-ae98.l.aivencloud.com:28031/defaultdb?sslmode=require"
     )
     return conn
-
-
 
 def send_email(recipient_email, verification_code):
     sender_email = "gourabtest469@gmail.com"
@@ -120,12 +122,8 @@ def add_technical_indicators(df):
 
 def train_random_forest(df):
     df = add_technical_indicators(df)
-
-    # Features and target variable
     X = df[['Close', 'MA_5', 'MA_10', 'MA_50', 'Volatility', 'RSI', 'MACD', 'MACD_signal']]
-    y = df['Close'].shift(-1)  # Predict the next day's closing price
-
-    # Remove the last row with NaN target
+    y = df['Close'].shift(-1)
     X = X[:-1]
     y = y[:-1]
 
@@ -255,7 +253,6 @@ def ensure_user_table_exists():
     conn = get_db_connection()
     cur = conn.cursor()
 
-    # Create userdata2 table if it does not exist
     cur.execute('''
         CREATE TABLE IF NOT EXISTS userdata2 (
             email VARCHAR(255) PRIMARY KEY,
@@ -268,15 +265,14 @@ def ensure_user_table_exists():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    # Ensure table exists before querying
     ensure_user_table_exists()
 
-    session.clear()  # Clear the session at the start of the route
+    session.clear()
 
     if request.method == 'POST':
         email = request.form['email']
-        password = request.form['password']  # Get password from form
-        session['verified'] = False  # Set to False until verification is done
+        password = request.form['password']
+        session['verified'] = False
         conn = get_db_connection()
         cur = conn.cursor()
 
@@ -284,7 +280,6 @@ def login():
         user = cur.fetchone()
 
         if user:
-            # Email exists, proceed with email verification
             verification_code = random.randint(100000, 999999)
             send_email(email, verification_code)
 
@@ -296,7 +291,6 @@ def login():
 
             return redirect(url_for('verify'))
         else:
-            # Email does not exist, create new user after verification
             verification_code = random.randint(100000, 999999)
             send_email(email, verification_code)
 
@@ -319,26 +313,22 @@ def verify():
             email = session.get('email')
             password = session.get('password')
             
-            # Check if user exists in the database
             conn = get_db_connection()
             cur = conn.cursor()
             cur.execute('SELECT * FROM userdata2 WHERE email = %s', (email,))
             user = cur.fetchone()
 
             if not user and password:
-                # If user doesn't exist, add to database after verification
                 cur.execute('INSERT INTO userdata2 (email, password) VALUES (%s, %s)', (email, password))
                 conn.commit()
 
             cur.close()
             conn.close()
 
-            # Clear session after successful verification
             session.clear()
 
-            # Store email in the session for the current visit
             session['email'] = email
-            session['verified'] = True  # Set to True after successful verification
+            session['verified'] = True
 
             return redirect(url_for('index'))
         else:
@@ -348,7 +338,7 @@ def verify():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if not session.get('email') or not session.get('verified'):
-        return redirect(url_for('login'))  # Force login if not verified
+        return redirect(url_for('login'))
 
     predicted_prices = []
     actual_prices = []
@@ -357,21 +347,18 @@ def index():
     future_prediction = None
     accuracy_score = None
     chatbot_response=None
-    
 
     if request.method == 'POST':
         symbol = request.form['symbol'].upper()
         future_date_str = request.form.get('future_date', '')
         year_prv = datetime.now().year - 1
 
-        # Fetch the stock data from Alpha Vantage
         df = fetch_stock_data(symbol)
 
         if df is not None:
             df = add_technical_indicators(df)
             df2 = df[df.index <= f'{year_prv}-12-29']
 
-            # Train the model
             model, scaler = train_random_forest(df2)
 
             if future_date_str:
@@ -384,7 +371,6 @@ def index():
                                            future_dates=future_dates, error_message=error_message, future_prediction=future_prediction,
                                            accuracy_score=accuracy_score)
 
-                # Simulate future data for the given future date
                 future_df = df.copy()
                 current_date = last_date
 
@@ -429,51 +415,68 @@ def index():
                     actual_prices.append(df.loc[date]['Close'])
                     future_dates.append(date)
 
-
             accuracy_score = round(r2_score(actual_prices, predicted_prices) * 100, 2)
             plot_filename = plot_prices(future_dates, predicted_prices, actual_prices)
-            # Make investment decision
-            investment_decision = make_investment_decision(
-                future_prediction,
-                symbol,
-                GOOGLE_NEWS_API_KEY
+
+            # Threaded section
+            decision_result = {}
+            news_result = {}
+            errors = {}
+
+            decision_thread = threading.Thread(
+                target=fetch_investment_decision,
+                args=(decision_result, errors, future_prediction, symbol, GOOGLE_NEWS_API_KEY)
+            )
+            news_thread = threading.Thread(
+                target=fetch_stock_news_parallel,
+                args=(news_result, errors, symbol, GOOGLE_NEWS_API_KEY)
             )
 
-            investment_decision = format_investment_decision(investment_decision)
-            session['investment_decision']=investment_decision
-            # Fetch stock news
-            stock_news = fetch_stock_news(symbol, GOOGLE_NEWS_API_KEY)
+            decision_thread.start()
+            news_thread.start()
+            decision_thread.join()
+            news_thread.join()
+
+            if 'decision_error' in errors:
+                return f"Error in investment decision: {errors['decision_error']}"
+            if 'news_error' in errors:
+                return f"Error fetching news: {errors['news_error']}"
+
+            investment_decision = decision_result.get('decision')
+            stock_news = news_result.get('news')
+
             if not stock_news:
                 return "Unable to fetch stock news. Decision cannot be made."
+
+            session['investment_decision'] = investment_decision
+
             print("\nStock News Headlines:")
             for i, news in enumerate(stock_news, 1):
                 print(f"{i}. {news}")
-            
-            
-            return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
 
+            return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                                    future_dates=future_dates, plot_url=plot_filename, future_prediction=future_prediction,
-                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news,chatbot_response=chatbot_response, show_chatbot=True)
+                                   accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news,
+                                   chatbot_response=chatbot_response, show_chatbot=True)
 
         else:
-            error_message = "Failed to fetch stock data.Try Again Later."
-        
+            error_message = "Failed to fetch stock data. Try Again Later."
+
     elif request.method == 'GET':
-        # Initialize chatbot interaction
         user_question = request.args.get('user_query')
         investment_decision2 = session.get('investment_decision', "Investment decision not available.")
-    
+
         if user_question:
             query = f"As you have provided {session.get('investment_decision')}. Now my question is {user_question}. If the question is out of the context, only say 'out of context'."
             chatbot_response = format_investment_decision(chat_with_gemini(query))
             return render_template('index.html', chatbot_response=chatbot_response, investment_decision=investment_decision2)
         else:
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
-                           error_message="No response from chatbot, please try again.", future_prediction=future_prediction, accuracy_score=accuracy_score)   
-        
+                           error_message="No response from chatbot, please try again.", future_prediction=future_prediction,
+                           accuracy_score=accuracy_score)
 
     return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
-                           error_message=error_message, future_prediction=future_prediction, accuracy_score=accuracy_score)   
+                           error_message=error_message, future_prediction=future_prediction, accuracy_score=accuracy_score)
 
 if __name__ == '__main__':
     app.run(debug=True)
