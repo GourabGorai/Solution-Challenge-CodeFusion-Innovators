@@ -1,7 +1,4 @@
-
-# generate_readme.py
-def generate_readme():
-    readme_content = """# Stock Financial Assistant
+# Stock Financial Assistant
 
 ## Overview
 
