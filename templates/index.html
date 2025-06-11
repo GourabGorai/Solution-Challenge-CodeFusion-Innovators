@@ -3,465 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css?family=Konkhmer+Sleokchher&display=swap" rel="stylesheet">
-  <title>Stock Prediction</title>
-  <style>
-    /* Reset and Base Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(to bottom, #f9fafb, #f3f4f6);
-      min-height: 100vh;
-      padding-top: 70px;
-    }
-
-    /* Header Styles */
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 70px;
-      background-color: #E13622;
-      z-index: 1000;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 0 2rem;
-    }
-
-    .header__title {
-      font-family: 'Konkhmer Sleokchher', cursive;
-      color: white;
-      font-size: 24px;
-    }
-
-    .nav__list {
-      display: flex;
-      gap: 1rem;
-      list-style: none;
-    }
-
-    .nav__link {
-      padding: 0.5rem 1rem;
-      background-color: #f3f4f6;
-      border-radius: 9999px;
-      color: #1f2937;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .nav__link:hover {
-      background-color: #E13622;
-      color: white;
-    }
-
-    /* Container */
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem;
-      padding-bottom: 4rem;
-      margin-top: 80px;
-    }
-
-    /* Card Styles */
-    .card {
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
-      animation: fadeIn 0.5s ease-out;
-    }
-
-    /* Prediction Form */
-    .prediction-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    @media (max-width: 768px) {
-      .prediction-form {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .input {
-      padding: 0.5rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.375rem;
-      font-size: 1rem;
-    }
-
-    .button {
-      background-color: #E13622;
-      color: white;
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.375rem;
-      cursor: pointer;
-      font-weight: 500;
-      transition: background-color 0.2s;
-    }
-
-    .button:hover {
-      background-color: #c42e1b;
-    }
-
-    /* Results Grid */
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-
-    .result-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .result-label {
-      font-size: 1rem;
-      color: #4b5563;
-    }
-
-    .result-value {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #E13622;
-    }
-
-    /* News Grid */
-    .news-grid-container {
-      max-height: 400px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: #E13622 #f3f4f6;
-      margin-bottom: 1rem;
-    }
-
-    .news-grid-container::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .news-grid-container::-webkit-scrollbar-track {
-      background: #f3f4f6;
-      border-radius: 10px;
-    }
-
-    .news-grid-container::-webkit-scrollbar-thumb {
-      background-color: #E13622;
-      border-radius: 10px;
-    }
-
-    .news-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      padding-right: 8px; /* Space for scrollbar */
-    }
-
-    .news-item {
-      aspect-ratio: 1;
-      background-color: #f3f4f6;
-      border-radius: 0.5rem;
-      transition: background-color 0.2s;
-      padding: 0.25rem; /* Reduced padding to make inner boxes smaller */
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      margin: 0.5rem;
-      color: #1f2937;
-      font-size: 0.75rem; /* Reduced font size to 12px for smaller textboxes */
-    }
-
-    .news-item:hover {
-      background-color: #e5e7eb;
-    }
-
-    /* Stock News List */
-    .news-list {
-      margin-top: 1rem;
-      border-top: 1px solid #e5e7eb;
-      padding-top: 1rem;
-      list-style: none;
-    }
-
-    .news-list li {
-      padding: 0.75rem;
-      border-radius: 0.375rem;
-      margin-bottom: 0.5rem;
-      background-color: #f3f4f6;
-      transition: background-color 0.2s;
-    }
-
-    .news-list li:hover {
-      background-color: #e5e7eb;
-    }
-
-    /* Error Message */
-    .error-message {
-      color: #E13622;
-      background-color: #fee2e2;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-      display: none;
-    }
-
-    /* Chatbot Section */
-    .chatbot-section {
-      margin-top: 2rem;
-    }
-
-    .chatbot-form {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .chatbot-input {
-      flex: 1;
-      padding: 0.5rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 0.375rem;
-      font-size: 1rem;
-    }
-
-    .chatbot-response {
-      background-color: #f3f4f6;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-top: 1rem;
-      display: none;
-    }
-
-    /* Footer */
-    .footer {
-      background-color: #E13622;
-      color: white;
-      text-align: center;
-      padding: 1rem;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      font-size: 0.875rem;
-    }
-
-    /* Animations */
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .two-column-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-    }
-
-    @media (max-width: 1024px) {
-      .two-column-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .news-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 768px) {
-      .news-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    h2 {
-      font-family: 'Konkhmer Sleokchher', cursive;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: #1f2937;
-    }
-
-    p {
-      color: white;
-      line-height: 1.6;
-    }
-  </style>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow-x: hidden;
-      color: white;
-    }
-    .video-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    .video-container video {
-      min-width: 100%;
-      min-height: 100%;
-      object-fit: cover;
-    }
-    .card {
-      background: rgba(0, 0, 0, 0.8);
-      color: grey;
-      padding: 20px;
-      border-radius: 10px;
-      margin: 20px;
-    }
-    h1, h2, h3, h4, h5, h6, .result-label {
-      color: white;
-    }
-    .two-column-grid .card p {
-      color: white;
-    }
-    .news-item {
-      color: #1f2937;
-    }
-  </style>
+  <title>ClarityTrade</title>
+  <link rel="icon" type="image/png" href="static/favicon.png">
+  <link href="static/style.css" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend+Zetta:wght@100..900&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="video-container">
-    <video autoplay muted loop>
-      <source src="static/background-video.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </div>
-  <!-- Header -->
   <header class="header">
-    <h1 class="header__title">STOCK FINANCIAL ASSISTANT</h1>
-    <nav class="nav">
-      <ul class="nav__list">
-        <li><a href="/" class="nav__link">HOME</a></li>
-        <li><a href="static/about.html" class="nav__link">ABOUT</a></li>
-      </ul>
-    </nav>
+    <div>
+      <a href="/">HOME</a>
+      <a href="static/about.html">ABOUT</a>
+    </div>
+    <h2 class="header_title">ClarityTrade</h2>
+    <div>
+      <a href="#prediction-form">RUN</a>
+      <a href="#results">RESULT</a>
+      <a href="#news">RECORD</a>
+    </div>
   </header>
 
-  <!-- Main Content -->
   <main class="container">
-    <!-- Error Message -->
     <div id="errorMessage" class="error-message">
       {% if error_message %}
         {{ error_message }}
       {% endif %}
     </div>
 
-    <!-- Prediction Form -->
-    <section class="card">
-      <h2>Ask for Prediction</h2>
-      <h4>AFTER PRESSING 'GO' BUTTON WAIT FOR APPROX. 2-3 MINS TO GENERATE THE RESULTS.</h4>
-      <form class="prediction-form" method="POST" action="/">
-        <div class="form-group">
-          <label for="symbol">Symbol</label>
-          <input type="text" id="symbol" name="symbol" class="input" placeholder="Enter stock symbol, ex :- AAPL, GOOGL, etc." required>
-        </div>
-        <div class="form-group">
-          <label for="date">Date</label>
-          <input type="date" id="date" name="future_date" class="input" required>
-        </div>
-        <button type="submit" class="button">GO</button>
-      </form>
-      <h4>THERE MAYBE SOME ERRORS. LIKE 'SERVICE UNAVAILABLE'</h4>
-    </section>
-
-    <!-- Results -->
-    <section class="card">
-      <h2>Prediction Details</h2>
-      <div class="results-grid">
-        <div class="result-item">
-          <span class="result-label">Current Price:</span>
-          <span class="result-value">${{ actual_prices[-1] if actual_prices else 'N/A' }}</span>
-        </div>
-        <div class="result-item">
-          <span class="result-label">Predicted Price:</span>
-          <span class="result-value">${{ future_prediction if future_prediction else 'N/A' }}</span>
-        </div>
-        <div class="result-item">
-          <span class="result-label">Prediction Date:</span>
-          <span class="result-value">{{ date if date else 'N/A' }}</span>
-        </div>
-        <div class="result-item">
-          <span class="result-label">Accuracy Rate:</span>
-          <span class="result-value">{{ accuracy_score }}%</span>
-        </div>
+    <section class="Hero">
+      <video autoplay muted loop>
+        <source src="static/background-video.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <div class="overlay">
+        <h1>FROM DATA TO DECISION</h1>
+        <h1>YOUR COMPLETE INVESTMENT ANALYSIS PLATFORM</h1>
+        <h3 class="typing-loop">
+          Where data science meets investment strategy for better financial decisions📈
+        </h3>        
       </div>
     </section>
 
-    <!-- Plot Section -->
-    <section class="card">
-      <h2>Stock Price Prediction Plot</h2>
-      <div id="plot-container">
-      {% if plot_url %}
-        <iframe src="{{ plot_url }}" width="100%" height="500px" frameborder="0"></iframe>
-      {% else %}
-        <p>No plot available. Please make a prediction to view the plot.</p>
-      {% endif %}
+    <!-- Input Section with dropdown -->
+    <section class="input" id="prediction-form">
+      <div class="text">
+        <h3>TRY IT OUT</h3>
+        <h3>YOURSELF</h3>
       </div>
-    </section>
-
-    <!-- Investment Decision & News -->
-    <div class="two-column-grid">
-      <section class="card">
-        <h2>Investment Decision</h2>
-        <p>{{ investment_decision|safe if investment_decision else 'No decision available.' }}</p>
-      </section>
-
-      <section class="card">
-        <h2>Relevant News</h2>
-        <div class="news-grid-container">
-          <div class="news-grid">
-            {% if stock_news %}
-              {% for news in stock_news %}
-                <div class="news-item">{{ news }}</div>
-              {% endfor %}
-            {% else %}
-              <div class="news-item">No news available.</div>
-            {% endif %}
+      <div>
+        <form class="prediction-form" method="POST" action="/">
+          <div>
+            <label for="symbol">SYMBOL: </label>
+            <select id="symbol" name="symbol" required>
+              <option value="">Select a stock symbol</option>
+              <option value="AAPL">AAPL - Apple</option>
+              <option value="GOOGL">GOOGL - Alphabet</option>
+              <option value="MSFT">MSFT - Microsoft</option>
+              <option value="TSLA">TSLA - Tesla</option>
+              <option value="AMZN">AMZN - Amazon</option>
+              <option value="META">META - Meta</option>
+              <option value="NFLX">NFLX - Netflix</option>
+              <option value="NVDA">NVDA - NVIDIA</option>
+              <option value="IBM">IBM - IBM</option>
+              <option value="INTC">INTC - Intel</option>
+            </select>
           </div>
+          <div>
+            <label for="date">DATE: </label>
+            <input type="date" id="date" name="future_date" required>
+          </div>
+          <div>
+            <button type="submit" class="button">Run</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <section class="result" id="results">
+      <!-- Candlestick Chart Section -->
+      <div class="chart-container">
+        <h2>STOCK PRICE CHART</h2>
+        {% if candlestick_url %}
+          <iframe src="{{ candlestick_url }}" width="100%" height="500px" frameborder="0"></iframe>
+        {% else %}
+          <p>No candlestick chart available. Please make a prediction to view the chart.</p>
+        {% endif %}
+      </div>
+      
+      <!-- Price Prediction Chart Section -->
+      <div class="chart-container">
+        <h2>PRICE PREDICTION CHART</h2>
+        {% if plot_url %}
+          <iframe src="{{ plot_url }}" width="100%" height="500px" frameborder="0"></iframe>
+        {% else %}
+          <p>No prediction plot available. Please make a prediction to view the plot.</p>
+        {% endif %}
+      </div>
+      
+      <form class="result-form">
+        <div>
+          <label for="last_price">LAST KNOWN PRICE: </label>
+          <input type="text" id="last_price" value="{{ actual_prices[-1] if actual_prices else (session.get('actual_prices', [])[-1] if session.get('actual_prices') else 'N/A') }}" disabled>
         </div>
-        <ul id="newsList" class="news-list"></ul>
-      </section>
-    </div>
+        <div>
+          <label for="pred_price">PREDICTED PRICE: </label>
+          <input type="text" id="pred_price" value="{{ future_prediction if future_prediction else (session.get('future_prediction') if session.get('future_prediction') else 'N/A') }}" disabled>
+        </div>
+        <div>
+          <label for="pred_date">PREDICTION DATE: </label>
+          <input type="text" id="pred_date" value="{{ request.form.get('future_date', 'N/A') }}" disabled>
+        </div>
+        <div>
+          <label for="acc_rate">ACCURACY RATE: </label>
+          <input type="text" id="acc_rate" value="{{ accuracy_score if accuracy_score else (session.get('accuracy_score') if session.get('accuracy_score') else 'N/A') }}%" disabled>
+        </div>
+      </form>
+    </section>
+
+    <!-- Investment Decision & News Section -->
+    <section class="record" id="news">
+      <div class="decision">
+        <h1>INVESTMENT DECISION</h1>
+        <div class="decision-content">
+          {{ investment_decision|safe if investment_decision else (session.get('investment_decision', 'No decision available.')|safe) }}
+        </div>
+      </div>
+      <div class="news">
+        <h1>RELEVANT NEWS</h1>
+        <ul class="news-list">
+          {% if stock_news %}
+            {% for news in stock_news %}
+              <li>{{ news }}</li>
+            {% endfor %}
+          {% elif session.get('stock_news') %}
+            {% for news in session.get('stock_news', []) %}
+              <li>{{ news }}</li>
+            {% endfor %}
+          {% else %}
+            <li>No news available.</li>
+          {% endif %}
+        </ul>
+      </div>
+    </section>
 
     <!-- Chatbot Section -->
-    <section class="card chatbot-section">
+    <section class="chatbot-section">
       <h2>Ask Chatbot</h2>
       <form id="chatbotForm" class="chatbot-form" method="GET" action="/">
         <input 
@@ -471,24 +159,23 @@
           class="chatbot-input"
           placeholder="Ask about the investment decision..."
           required
+          style="width: 60%; padding: 10px; font-size: 16px; border-radius: 8px; border: 1px solid #ccc;"
         >
-        <button type="submit" class="button">Ask</button>
+        <button type="submit" class="button" style="padding: 10px 20px; margin-left: 10px;">Ask</button>
       </form>
-      
+      <div id="chatbotResponse" class="chatbot-response">
         {% if chatbot_response %}
           {{ chatbot_response|safe }}
         {% endif %}
-      
+      </div>
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="footer">
-    <span>© 2025 Stock Prediction. All rights reserved.</span>
+    <span>2025© All rights reserved by ClarityTrade</span>
   </footer>
 
   <script>
-    // Form submission handling
     document.querySelector('.prediction-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const symbol = document.getElementById('symbol').value;
@@ -498,12 +185,9 @@
         showError('Please fill in all fields');
         return;
       }
-
-      // Submit the form
       this.submit();
     });
 
-    // Error handling
     function showError(message) {
       const errorDiv = document.getElementById('errorMessage');
       errorDiv.textContent = message;
@@ -514,23 +198,33 @@
       document.getElementById('errorMessage').style.display = 'none';
     }
 
-    // Chatbot form handling
     document.getElementById('chatbotForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const query = document.getElementById('chatbotInput').value;
       
       if (!query) return;
 
-      // Submit the form
+      const responseDiv = document.getElementById('chatbotResponse');
+      responseDiv.style.display = 'block';
+      responseDiv.innerHTML = 'Loading response...';
+
       this.submit();
     });
 
-    // Add animation to cards on page load
+    // Set today's date as default in the date picker
     document.addEventListener('DOMContentLoaded', function() {
-      const cards = document.querySelectorAll('.card');
-      cards.forEach((card, index) => {
-        card.style.animationDelay = `${index * 0.1}s`;
-      });
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('date').setAttribute('min', today);
+      
+      // Show error message if it exists
+      {% if error_message %}
+        showError('{{ error_message }}');
+      {% endif %}
+      
+      // Show chatbot response area if there's a response
+      {% if chatbot_response %}
+        document.getElementById('chatbotResponse').style.display = 'block';
+      {% endif %}
     });
   </script>
 </body>
