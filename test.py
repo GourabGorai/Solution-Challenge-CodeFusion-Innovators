@@ -1,6 +1,7 @@
 import requests
 import google.generativeai as genai
 from googletrans import Translator
+from datetime import datetime, timedelta
 
 # Initialize the translator
 translator = Translator()
@@ -14,21 +15,26 @@ def translate_to_english(text):
         print(f"Error translating text: {e}")
         return text  # Return the original text if translation fails
 
-# Function to fetch stock news using Google News API
-def fetch_stock_news(stock_symbol, google_news_api_key):
-    url = f"https://newsapi.org/v2/everything?q={stock_symbol}&sortBy=publishedAt&apiKey={google_news_api_key}"
+# Function to fetch stock news using Finnhub API
+def fetch_stock_news(stock_symbol, finnhub_api_key):
+    # Set date range (last 7 days)
+    to_date = datetime.now()
+    from_date = to_date - timedelta(days=7)
+    
+    url = f"https://finnhub.io/api/v1/company-news?symbol={stock_symbol}&from={from_date.strftime('%Y-%m-%d')}&to={to_date.strftime('%Y-%m-%d')}&token={finnhub_api_key}"
     response = requests.get(url)
+    
     if response.status_code == 200:
         news_data = response.json()
-        headlines = [article['title'] for article in news_data['articles']]
-        # Translate headlines to English
-        translated_headlines = [translate_to_english(headline) for headline in headlines]
-        return translated_headlines
+        # Extract headlines and ensure they're in English
+        headlines = [article['headline'] for article in news_data if 'headline' in article]
+        
+        return headlines # Return top 10 headlines
     else:
-        print("Error fetching stock news:", response.status_code)
+        print(f"Error fetching stock news from Finnhub: {response.status_code}")
         return []
 
-# Function to fetch current stock price using Gemini API
+# Function to fetch current stock price using Alpha Vantage API
 def fetch_current_price(stock_symbol, alpha_vantage_api_key):
     url = f"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={stock_symbol}&interval=1min&apikey={alpha_vantage_api_key}"
     response = requests.get(url)
@@ -47,8 +53,8 @@ def fetch_current_price(stock_symbol, alpha_vantage_api_key):
         print("Error fetching current stock price:", response.status_code, response.text)
         return None
 
-# Function to use Gemini's generative model for suggestion (not a decision API)
-def get_financial_suggestion(predicted_price, current_price, stock_news):
+# Function to use Gemini's generative model for suggestion
+def get_financial_suggestion(predicted_price, current_price, stock_news, accuracy_score):
     # Configure and create the generative model
     genai.configure(api_key="AIzaSyDYTE6N19xUpjUanmKtbR4ymkmOXcxG8OA")
     model = genai.GenerativeModel("gemini-1.5-flash")
@@ -58,13 +64,12 @@ def get_financial_suggestion(predicted_price, current_price, stock_news):
         "predicted_price": predicted_price,
         "current_price": current_price,
         "stock_news": stock_news,
-        "accuracy of prediction": 99.2
+        "accuracy_score": accuracy_score
     }
 
     # Generate text suggestion based on the payload
-    response = model.generate_content(f"Provide me your financial suggestion according to {payload}")
-    # No status code is returned, only the generated text
-    return response.text  # Return the generated suggestion
+    response = model.generate_content(f"Mentioning the all details provided ( except the news. also show the accuracy score ), Provide me your financial Decision according to {payload}")
+    return response.text 
 
 # Function to interact with the Gemini API as a chatbot
 def chat_with_gemini(user_question):
@@ -80,15 +85,14 @@ def chat_with_gemini(user_question):
     except Exception as e:
         return f"Error: {str(e)}"
 
-# Main function to fetch data and make a suggestion
-def make_investment_decision(predicted_price, stock_symbol, google_news_api_key):
+def make_investment_decision(predicted_price, stock_symbol, finnhub_api_key, accuracy_score):
     # Fetch current stock price
     current_price = fetch_current_price(stock_symbol, 'LZIWKUHDC0XBETMU')
     if current_price is None:
         return "Unable to fetch current stock price. Decision cannot be made."
 
-    # Fetch stock news
-    stock_news = fetch_stock_news(stock_symbol, google_news_api_key)
+    # Fetch stock news from Finnhub
+    stock_news = fetch_stock_news(stock_symbol, finnhub_api_key)
     if not stock_news:
         return "Unable to fetch stock news. Decision cannot be made."
 
@@ -98,12 +102,18 @@ def make_investment_decision(predicted_price, stock_symbol, google_news_api_key)
         print(f"{i}. {news}")
 
     # Get financial suggestion using Gemini's generative model
-    suggestion = get_financial_suggestion(predicted_price, current_price, stock_news)
+    suggestion = get_financial_suggestion(predicted_price, current_price, stock_news, accuracy_score)
     data1 = f"\nFinancial Suggestion: {suggestion}"
-    print(f"\nFinancial Suggestion: {suggestion}")
 
-    # Disclaimer: This is for informational purposes only, not financial advice.
+    # Disclaimer
     print("Disclaimer: This is a suggestion based on the provided information and should not be considered financial advice. Please consult with a financial professional before making any investment decisions.")
     return data1
 
-kjh = 1
+# Example usage
+if __name__ == "__main__":
+    finnhub_api_key = "cvvsfh1r01qod00luea0cvvsfh1r01qod00lueag"  # Your Finnhub API key
+    predicted_price = 150.0  # Example predicted price for AAPL
+    stock_symbol = "AAPL"    # Example stock symbol
+    
+    decision = fetch_stock_news(stock_symbol=stock_symbol,finnhub_api_key=finnhub_api_key)
+    print(decision)
