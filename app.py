@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import r2_score
 import plotly.express as px
+import plotly.graph_objects as go
 import plotly.io as pio
 import numpy as np
 from test import make_investment_decision
@@ -19,20 +20,29 @@ from test import fetch_stock_news
 from test import chat_with_gemini
 import re
 import threading
+from dotenv import load_dotenv
+import os
 
 app = Flask(__name__)
+load_dotenv()
 app.secret_key = 'your_secret_key_here'
 app.config['DEBUG'] = True
-GOOGLE_NEWS_API_KEY = '43a396d991214609bdd6e65e6988bedb'
-API_KEY = 'LZIWKUHDC0XBETMU'
+GOOGLE_NEWS_API_KEY = os.getenv('GOOGLE_NEWS_API_KEY')
+API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
 STOCK_BASE_URL = 'https://www.alphavantage.co/query'
-HOLIDAY_API_KEY = '49339829-1b08-49a6-b341-72f937bb885f'
+HOLIDAY_API_KEY = os.getenv('HOLIDAY_API_KEY')
 HOLIDAY_API_URL = 'https://holidayapi.com/v1/holidays'
+# Email configuration
+EMAIL_ADDRESS = os.getenv('EMAIL_ADDRESS')
+EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
+
+# Database configuration
+DB_URL = os.getenv('DB_URL')
 
 # Threading helper functions
-def fetch_investment_decision(result_container, error_container, future_prediction, symbol, api_key):
+def fetch_investment_decision(result_container, error_container, future_prediction, symbol, api_key, accuracy_score):
     try:
-        decision = make_investment_decision(future_prediction, symbol, api_key)
+        decision = make_investment_decision(future_prediction, symbol, api_key, accuracy_score)
         formatted_decision = format_investment_decision(decision)
         result_container['decision'] = formatted_decision
     except Exception as e:
@@ -67,14 +77,12 @@ def is_holiday(date, country='US'):
     return len(holidays) > 0
 
 def get_db_connection():
-    conn = psycopg2.connect(
-        "postgres://avnadmin:AVNS_HjYF1YDB0ilME5gCWBC@pg-2ff69ed5-gourabg30march-ae98.l.aivencloud.com:28031/defaultdb?sslmode=require"
-    )
+    conn = psycopg2.connect(DB_URL)
     return conn
 
 def send_email(recipient_email, verification_code):
-    sender_email = "gourabtest469@gmail.com"
-    sender_password = "geslhgvynzwwqrsb"
+    sender_email = EMAIL_ADDRESS
+    sender_password = EMAIL_PASSWORD
 
     message = MIMEMultipart("alternative")
     message["Subject"] = "Your Verification Code"
@@ -184,6 +192,62 @@ def plot_prices(dates, predicted_prices, actual_prices):
     pio.write_html(fig, file=plot_filename, auto_open=False)
 
     return plot_filename
+
+def plot_candlestick(df, symbol):
+    # Filter data for current year only
+    current_year = datetime.now().year
+    start_date = f"{current_year}-01-01"
+    df_current_year = df[df.index >= start_date]
+    
+    # Create candlestick figure
+    fig = go.Figure(data=[go.Candlestick(
+        x=df_current_year.index,
+        open=df_current_year['Open'],
+        high=df_current_year['High'],
+        low=df_current_year['Low'],
+        close=df_current_year['Close'],
+        name='Candlestick'
+    )])
+    
+    # Add moving averages if they exist
+    if 'MA_5' in df_current_year.columns:
+        fig.add_trace(go.Scatter(
+            x=df_current_year.index,
+            y=df_current_year['MA_5'],
+            line=dict(color='blue', width=1),
+            name='5-Day MA'
+        ))
+    
+    if 'MA_10' in df_current_year.columns:
+        fig.add_trace(go.Scatter(
+            x=df_current_year.index,
+            y=df_current_year['MA_10'],
+            line=dict(color='orange', width=1),
+            name='10-Day MA'
+        ))
+    
+    if 'MA_50' in df_current_year.columns:
+        fig.add_trace(go.Scatter(
+            x=df_current_year.index,
+            y=df_current_year['MA_50'],
+            line=dict(color='green', width=1),
+            name='50-Day MA'
+        ))
+    
+    # Update layout
+    fig.update_layout(
+        title=f'{symbol} Candlestick Chart ({current_year} YTD)',
+        xaxis_title='Date',
+        yaxis_title='Price',
+        xaxis_rangeslider_visible=False,
+        hovermode='x unified'
+    )
+    
+    # Save the plot
+    candlestick_filename = f'static/candlestick_{symbol}.html'
+    pio.write_html(fig, file=candlestick_filename, auto_open=False)
+    
+    return candlestick_filename
 
 def create_stockhistory_table_if_not_exists():
     conn = get_db_connection()
@@ -347,6 +411,7 @@ def index():
     future_prediction = None
     accuracy_score = None
     chatbot_response=None
+    candlestick_url = None
 
     if request.method == 'POST':
         symbol = request.form['symbol'].upper()
@@ -356,7 +421,12 @@ def index():
         df = fetch_stock_data(symbol)
 
         if df is not None:
+            # First add technical indicators to the DataFrame
             df = add_technical_indicators(df)
+            
+            # Now we can plot the candlestick chart
+            candlestick_url = plot_candlestick(df, symbol)
+            
             df2 = df[df.index <= f'{year_prv}-12-29']
 
             model, scaler = train_random_forest(df2)
@@ -369,7 +439,7 @@ def index():
                     error_message = "No prediction available."
                     return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                                            future_dates=future_dates, error_message=error_message, future_prediction=future_prediction,
-                                           accuracy_score=accuracy_score)
+                                           accuracy_score=accuracy_score, candlestick_url=candlestick_url)
 
                 future_df = df.copy()
                 current_date = last_date
@@ -425,7 +495,7 @@ def index():
 
             decision_thread = threading.Thread(
                 target=fetch_investment_decision,
-                args=(decision_result, errors, future_prediction, symbol, GOOGLE_NEWS_API_KEY)
+                args=(decision_result, errors, future_prediction, symbol, GOOGLE_NEWS_API_KEY, accuracy_score)
             )
             news_thread = threading.Thread(
                 target=fetch_stock_news_parallel,
@@ -448,7 +518,15 @@ def index():
             if not stock_news:
                 return "Unable to fetch stock news. Decision cannot be made."
 
+            # Store all relevant data in session
             session['investment_decision'] = investment_decision
+            session['predicted_prices'] = predicted_prices
+            session['actual_prices'] = actual_prices
+            session['stock_news'] = None
+            session['future_prediction'] = future_prediction
+            session['accuracy_score'] = accuracy_score
+            session['plot_url'] = None
+            session['candlestick_url'] = candlestick_url
 
             print("\nStock News Headlines:")
             for i, news in enumerate(stock_news, 1):
@@ -457,7 +535,7 @@ def index():
             return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
                                    future_dates=future_dates, plot_url=plot_filename, future_prediction=future_prediction,
                                    accuracy_score=accuracy_score, investment_decision=investment_decision, stock_news=stock_news,
-                                   chatbot_response=chatbot_response, show_chatbot=True)
+                                   chatbot_response=chatbot_response, show_chatbot=True, candlestick_url=candlestick_url)
 
         else:
             error_message = "Failed to fetch stock data. Try Again Later."
@@ -465,18 +543,43 @@ def index():
     elif request.method == 'GET':
         user_question = request.args.get('user_query')
         investment_decision2 = session.get('investment_decision', "Investment decision not available.")
+        predicted_prices2 = session.get('predicted_prices', [])
+        actual_prices2 = session.get('actual_prices', [])
+        stock_news2 = session.get('stock_news', [])
+        future_prediction2 = session.get('future_prediction')
+        accuracy_score2 = session.get('accuracy_score')
+        plot_url2 = session.get('plot_url')
+        candlestick_url2 = session.get('candlestick_url')
 
         if user_question:
             query = f"As you have provided {session.get('investment_decision')}. Now my question is {user_question}. If the question is out of the context, only say 'out of context'."
             chatbot_response = format_investment_decision(chat_with_gemini(query))
-            return render_template('index.html', chatbot_response=chatbot_response, investment_decision=investment_decision2)
+            return render_template('index.html', 
+                                chatbot_response=chatbot_response, 
+                                investment_decision=investment_decision2,
+                                predicted_prices=predicted_prices2,
+                                actual_prices=actual_prices2,
+                                stock_news=stock_news2,
+                                future_prediction=future_prediction2,
+                                accuracy_score=accuracy_score2,
+                                plot_url=plot_url2,
+                                candlestick_url=candlestick_url2)
         else:
-            return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
-                           error_message="No response from chatbot, please try again.", future_prediction=future_prediction,
-                           accuracy_score=accuracy_score)
+            return render_template('index.html', 
+                                predicted_prices=predicted_prices, 
+                                actual_prices=actual_prices,
+                                error_message="No response from chatbot, please try again.", 
+                                future_prediction=future_prediction,
+                                accuracy_score=accuracy_score,
+                                candlestick_url=candlestick_url)
 
-    return render_template('index.html', predicted_prices=predicted_prices, actual_prices=actual_prices,
-                           error_message=error_message, future_prediction=future_prediction, accuracy_score=accuracy_score)
+    return render_template('index.html', 
+                          predicted_prices=predicted_prices, 
+                          actual_prices=actual_prices,
+                          error_message=error_message, 
+                          future_prediction=future_prediction, 
+                          accuracy_score=accuracy_score,
+                          candlestick_url=candlestick_url)
 
 if __name__ == '__main__':
     app.run(debug=True)
